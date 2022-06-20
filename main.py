@@ -9,14 +9,22 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-with open("analyzed_data.json", encoding='utf-8') as f:
-    analyzed_data = json.load(f)
-df = pd.read_json("yes24.preprocessed.json")
+st.title("미리보기 기반 소설 추천 서비스")
+
+
+checkbox_btn = st.checkbox('불용 문장 처리')
+if checkbox_btn:
+    with open("analyzed_data.without_sent.json", encoding='utf-8') as f:
+        analyzed_data = json.load(f)
+    df = pd.read_json("yes24.preprocessed.without_sent.json")
+
+else:
+    with open("analyzed_data.with_sent.json", encoding='utf-8') as f:
+        analyzed_data = json.load(f)
+    df = pd.read_json("yes24.preprocessed.with_sent.json")
 
 tfidf_matrix = TfidfVectorizer().fit_transform(analyzed_data)
-
 cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-
 title_to_index = dict(zip(df['title'], df.index))
 
 
@@ -40,26 +48,19 @@ def get_recommendations(title, cosine_sim=cosine_sim):
     return df['title'].iloc[movie_indices], sim_scores
 
 
-df_title = df.title
-def text_changed():
-    print(st.session_state.msg)
-
-
-st.title("미리보기 기반 소설 추천 서비스")
-
-novel_title = st.text_input("기억이 잘 나지 않는 책 입력하시오.", key="msg", on_change=text_changed)
+novel_title = st.text_input("기억이 잘 나지 않는 책 입력하시오.")
 st.write(f"{novel_title}")
+
 if novel_title:
     st.write([x for x in df.title if novel_title in x])
 else:
-    st.write(df_title)
+    st.write(df.title)
 
 
 novel_title = st.text_input("좋아하는 소설 제목을 입력하시오.")
 st.write(f"검색 대상: {novel_title}")
 if novel_title.startswith('"') and novel_title.endswith('"'):
     novel_title = novel_title[1:-2]
-
 
 st.write("Here's our first attempt at using data to create a table:")
 try:
