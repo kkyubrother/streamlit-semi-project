@@ -5,13 +5,16 @@ Here's our first attempt at using data to create a table:
 import json
 import streamlit as st
 import pandas as pd
+from gensim.models import doc2vec
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
+# 제목
 st.title("미리보기 기반 소설 추천 서비스")
 
 
+# 불용어 사용 선택
 checkbox_btn = st.checkbox('불용 문장 처리')
 if checkbox_btn:
     with open("analyzed_data.without_sent.json", encoding='utf-8') as f:
@@ -23,9 +26,12 @@ else:
         analyzed_data = json.load(f)
     df = pd.read_json("yes24.preprocessed.with_sent.json")
 
+
 tfidf_matrix = TfidfVectorizer().fit_transform(analyzed_data)
 cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 title_to_index = dict(zip(df['title'], df.index))
+
+model = doc2vec.Doc2Vec.load("dart.doc2vec")
 
 
 def get_recommendations(title, cosine_sim=cosine_sim):
@@ -62,9 +68,17 @@ st.write(f"검색 대상: {novel_title}")
 if novel_title.startswith('"') and novel_title.endswith('"'):
     novel_title = novel_title[1:-2]
 
-st.write("Here's our first attempt at using data to create a table:")
+st.write("IF-IDF:")
 try:
     r = get_recommendations(novel_title)
     st.write(pd.DataFrame({"name": r[0], "score": [round(x[1], 3) * 100 for x in r[1]]}))
+except KeyError:
+    st.text("데이터가 없습니다.")
+
+
+st.write("Doc2Vec:")
+try:
+    similar_doc = model.docvecs.most_similar(novel_title)
+    st.write(pd.DataFrame(similar_doc, columns=["제목", "유사도"]))
 except KeyError:
     st.text("데이터가 없습니다.")
