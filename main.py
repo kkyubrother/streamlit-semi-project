@@ -54,6 +54,30 @@ def get_recommendations(title, cosine_sim=cosine_sim):
     return df['title'].iloc[movie_indices], sim_scores
 
 
+novel_title = st.text_input("좋아하는 소설 제목을 입력하시오.")
+st.write(f"검색 대상: {novel_title}")
+if novel_title.startswith('"') and novel_title.endswith('"'):
+    novel_title = novel_title[1:-2]
+
+
+col1, col2 = st.columns(2)
+
+col1.write("IF-IDF:")
+try:
+    r = get_recommendations(novel_title)
+    col1.write(pd.DataFrame({"name": r[0], "score": [round(x[1], 3) * 100 for x in r[1]]}))
+except KeyError:
+    col1.text("데이터가 없습니다.")
+
+
+col2.write("Doc2Vec:")
+try:
+    similar_doc = model.dv.most_similar(novel_title)
+    col2.write(pd.DataFrame(similar_doc, columns=["제목", "유사도"]))
+except KeyError:
+    col2.text("데이터가 없습니다.")
+
+
 novel_title = st.text_input("기억이 잘 나지 않는 책 입력하시오.")
 st.write(f"{novel_title}")
 
@@ -61,24 +85,3 @@ if novel_title:
     st.write([x for x in df.title if novel_title in x])
 else:
     st.write(df.title)
-
-
-novel_title = st.text_input("좋아하는 소설 제목을 입력하시오.")
-st.write(f"검색 대상: {novel_title}")
-if novel_title.startswith('"') and novel_title.endswith('"'):
-    novel_title = novel_title[1:-2]
-
-st.write("IF-IDF:")
-try:
-    r = get_recommendations(novel_title)
-    st.write(pd.DataFrame({"name": r[0], "score": [round(x[1], 3) * 100 for x in r[1]]}))
-except KeyError:
-    st.text("데이터가 없습니다.")
-
-
-st.write("Doc2Vec:")
-try:
-    similar_doc = model.dv.most_similar(novel_title)
-    st.write(pd.DataFrame(similar_doc, columns=["제목", "유사도"]))
-except KeyError:
-    st.text("데이터가 없습니다.")
