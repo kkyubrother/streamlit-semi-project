@@ -55,7 +55,7 @@ def get_recommendations(title, without_sent: bool):
 
 
 def set_tfidf_column(col: st.delta_generator.DeltaGenerator, title: str, without_sent: bool):
-    col.write("IF-IDF:")
+    col.write("TF-IDF:")
     try:
         r = get_recommendations(title, without_sent)
         col.write(pd.DataFrame({"name": r[0], "score": [round(x[1], 3) * 100 for x in r[1]]}))
