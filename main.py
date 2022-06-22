@@ -62,7 +62,9 @@ def set_tfidf_column(col: st.delta_generator.DeltaGenerator, title: str, without
     try:
         r = get_recommendations(title, without_sent)
         col.write(pd.DataFrame({"name": r[0], "score": [round(x[1], 3) * 100 for x in r[1]]}))
-    except (KeyError or IndexError):
+    except KeyError:
+        col.text("데이터가 없습니다.")
+    except IndexError:
         col.text("데이터가 없습니다.")
 
 
