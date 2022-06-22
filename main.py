@@ -78,7 +78,7 @@ except KeyError:
 
 st.write("Doc2Vec:")
 try:
-    similar_doc = model.docvecs.most_similar(novel_title)
+    similar_doc = model.dv.most_similar(novel_title)
     st.write(pd.DataFrame(similar_doc, columns=["제목", "유사도"]))
 except KeyError:
     st.text("데이터가 없습니다.")
