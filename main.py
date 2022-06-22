@@ -37,7 +37,9 @@ def load_doc2vec_data():
 
 
 @st.cache
-def get_recommendations(title, cosine_sim):
+def get_recommendations(title, without_sent: bool):
+    cosine_sim, title_to_index, df = load_analyzed_data(without_sent)
+
     # 선택한 제목에서 해당 책의 인덱스를 받아온다.
     idx = title_to_index[title]
 
@@ -57,22 +59,34 @@ def get_recommendations(title, cosine_sim):
     return df['title'].iloc[movie_indices], sim_scores
 
 
-def set_tfidf_column(col: st.delta_generator.DeltaGenerator):
+def set_tfidf_column(col: st.delta_generator.DeltaGenerator, title: str, without_sent: bool):
     col.write("IF-IDF:")
     try:
-        r = get_recommendations(novel_title, cosine_sim)
+        r = get_recommendations(title, without_sent)
         col.write(pd.DataFrame({"name": r[0], "score": [round(x[1], 3) * 100 for x in r[1]]}))
     except KeyError:
         col.text("데이터가 없습니다.")
 
 
-def set_doc2vec_column(col: st.delta_generator.DeltaGenerator):
+def set_doc2vec_column(col: st.delta_generator.DeltaGenerator, title: str):
+    model = load_doc2vec_data()
     col.write("Doc2Vec:")
     try:
-        similar_doc = model.dv.most_similar(novel_title)
+        similar_doc = model.dv.most_similar(title)
         col.write(pd.DataFrame(similar_doc, columns=["제목", "유사도"]))
     except KeyError:
         col.text("데이터가 없습니다.")
+
+
+def set_search_title_column(col, without_sent: bool):
+    _, _, df = load_analyzed_data(without_sent)
+    title = st.text_input("기억이 잘 나지 않는 책 입력하시오.")
+    col.write(f"{title}")
+
+    if title:
+        col.write([x for x in df.title if title in x])
+    else:
+        col.write(df.title)
 
 
 # 제목
@@ -80,23 +94,13 @@ st.title("미리보기 기반 소설 추천 서비스")
 
 # 불용어 사용 선택
 checkbox_btn = st.checkbox('불용 문장 처리')
-cosine_sim, title_to_index, df = load_analyzed_data(checkbox_btn)
-model = load_doc2vec_data()
-
 
 novel_title = st.text_input("좋아하는 소설 제목을 입력하시오.")
 st.write(f"검색 대상: {novel_title}")
 
-
 col1, col2 = st.columns(2)
-set_tfidf_column(col1)
-set_doc2vec_column(col2)
+set_tfidf_column(col1, novel_title, checkbox_btn)
+set_doc2vec_column(col2, novel_title)
 
+set_search_title_column(st, novel_title)
 
-novel_title = st.text_input("기억이 잘 나지 않는 책 입력하시오.")
-st.write(f"{novel_title}")
-
-if novel_title:
-    st.write([x for x in df.title if novel_title in x])
-else:
-    st.write(df.title)
