@@ -53,10 +53,10 @@ def get_recommendations(title, without_sent: bool):
     sim_scores = sim_scores[1:11]
 
     # 가장 유사한 10개의 책의 인덱스를 얻는다.
-    movie_indices = [idx[0] for idx in sim_scores]
+    novel_indices = [idx[0] for idx in sim_scores]
 
     # 가장 유사한 10개의 책의 제목을 리턴한다.
-    return df['title'].iloc[movie_indices], sim_scores
+    return df['title'].iloc[novel_indices], sim_scores
 
 
 def set_tfidf_column(col: st.delta_generator.DeltaGenerator, title: str, without_sent: bool):
