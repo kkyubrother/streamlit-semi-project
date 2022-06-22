@@ -10,6 +10,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
+@st.cache
 def load_analyzed_data(without_sent: bool):
     """데이터 불러오기"""
     if without_sent:
@@ -30,13 +31,14 @@ def load_analyzed_data(without_sent: bool):
     return title_to_index, cosine_sim, df
 
 
+@st.cache
 def load_doc2vec_data():
     return doc2vec.Doc2Vec.load("dart.doc2vec")
 
 
 @st.cache
 def get_recommendations(title, without_sent: bool):
-    cosine_sim, title_to_index, df = load_analyzed_data(without_sent)
+    title_to_index, cosine_sim, df = load_analyzed_data(without_sent)
 
     # 선택한 제목에서 해당 책의 인덱스를 받아온다.
     idx = title_to_index[title]
