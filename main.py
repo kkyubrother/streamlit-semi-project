@@ -71,7 +71,7 @@ def get_tfidf_recommendations(title: str) -> pd.DataFrame:
     # 가장 유사한 10개의 책 제목과 유사도를 반환한다.
     title_list = df['title'].iloc[novel_indices]
     score_list = [round(score[1], 3) * 100 for score in sim_scores]
-    return pd.DataFrame({"제목": title_list, "score": score_list})
+    return pd.DataFrame({"제목": title_list, "score": score_list}).reset_index(drop=True, inplace=False)
 
 
 def get_doc2vec_recommendations(title: str) -> pd.DataFrame:
@@ -126,9 +126,6 @@ def set_search_title_column(col):
 
 # 제목
 st.title("미리보기 기반 소설 추천 서비스")
-
-# 불용어 사용 선택
-checkbox_btn = st.checkbox('불용 문장 처리')
 
 # 제목 검색창
 novel_title = st.text_input("좋아하는 소설 제목을 입력하시오.")
