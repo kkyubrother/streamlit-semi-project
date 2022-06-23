@@ -4,8 +4,8 @@
 
 # 라이브러리 로드
 import json
-import streamlit as st
 import pandas as pd
+import streamlit as st
 from gensim.models import doc2vec
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -45,7 +45,6 @@ def create_cosine_sim(analyzed_data: dict):
     return cosine_similarity(tfidf_matrix, tfidf_matrix)
 
 
-@st.cache
 def get_tfidf_recommendations(title: str) -> pd.DataFrame:
     """TF-IDF 기반 추천"""
     # 데이터 가져옴
@@ -74,7 +73,6 @@ def get_tfidf_recommendations(title: str) -> pd.DataFrame:
     return pd.DataFrame({"제목": title_list, "score": score_list})
 
 
-@st.cache
 def get_doc2vec_recommendations(title: str) -> pd.DataFrame:
     """doc2vec 기반 추천"""
     # 모델을 불러온다
@@ -144,5 +142,5 @@ set_tfidf_column(col1, novel_title)
 # Doc2Vec 열을 설정
 set_doc2vec_column(col2, novel_title)
 
-#
+# 검색 열을 설정
 set_search_title_column(st)
