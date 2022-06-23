@@ -22,7 +22,7 @@ def load_analyzed_data() -> List[str]:
     with open(analyzed_data_path, encoding='utf-8') as f:
 
         # 사전 객체로 변환 후 반환
-        return [" ".join(x) for x in json.load(f)["preview"]]
+        return [" ".join(x["preview"]) for x in json.load(f)]
 
 
 def load_preprocessed_data() -> pd.DataFrame:
