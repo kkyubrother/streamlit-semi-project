@@ -4,6 +4,7 @@
 
 # 라이브러리 로드
 import json
+from typing import List
 import pandas as pd
 import streamlit as st
 from gensim.models import doc2vec
@@ -11,24 +12,24 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-def load_analyzed_data() -> dict:
+def load_analyzed_data() -> List[str]:
     """형태소 분석 데이터를 가져온다"""
 
     # 파일 경로
-    analyzed_data_path = "analyzed_data.json"
+    analyzed_data_path = "yes24.2.형태소.nouns.json"
 
     # 파일 읽음
     with open(analyzed_data_path, encoding='utf-8') as f:
 
         # 사전 객체로 변환 후 반환
-        return json.load(f)
+        return [" ".join(x) for x in json.load(f)["preview"]]
 
 
 def load_preprocessed_data() -> pd.DataFrame:
     """전처리된 데이터를 가져온다"""
 
     # 파일 경로
-    pre_processed_data_path = "preprocessed_data.json"
+    pre_processed_data_path = "yes24.1.전처리.json"
 
     # DataFrame 객체로 변환 후 반환
     return pd.read_json(pre_processed_data_path)
@@ -39,7 +40,7 @@ def load_doc2vec_data():
     return doc2vec.Doc2Vec.load("dart.doc2vec")
 
 
-def create_cosine_sim(analyzed_data: dict):
+def create_cosine_sim(analyzed_data: List[str]):
     """코사인 유사도 객체 생성"""
     tfidf_matrix = TfidfVectorizer().fit_transform(analyzed_data)
     return cosine_similarity(tfidf_matrix, tfidf_matrix)
